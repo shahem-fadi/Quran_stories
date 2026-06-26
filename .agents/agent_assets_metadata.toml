@@ -6,3 +6,9 @@ id = "Wjw-h2Cx7E9CyANWAqNeq"
 uri = "file://attached_assets/quran-stories_modified.tar.gz"
 type = "unspecified"
 title = "quran-stories (معدّل)"
+
+[[outputs]]
+id = "g-99orqMX5BrUT93rC5U0"
+uri = "file://attached_assets/quran-stories-changes.tar.gz"
+type = "unspecified"
+title = "التعديلات — quran-stories-changes"
