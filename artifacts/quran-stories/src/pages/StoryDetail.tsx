@@ -1,7 +1,98 @@
 import { Link, useParams } from "wouter";
+import { useState, useRef, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { getStoryBySlug, stories } from "@/data/stories";
+
+// Surah name → number mapping (covers all surahs used in the data)
+const SURAH_NUMBER: Record<string, number> = {
+  "الفاتحة": 1, "البقرة": 2, "آل عمران": 3, "النساء": 4, "المائدة": 5,
+  "الأنعام": 6, "الأعراف": 7, "الأنفال": 8, "التوبة": 9, "يونس": 10,
+  "هود": 11, "يوسف": 12, "الرعد": 13, "إبراهيم": 14, "الحجر": 15,
+  "النحل": 16, "الإسراء": 17, "الكهف": 18, "مريم": 19, "طه": 20,
+  "الأنبياء": 21, "الحج": 22, "المؤمنون": 23, "النور": 24, "الفرقان": 25,
+  "الشعراء": 26, "النمل": 27, "القصص": 28, "العنكبوت": 29, "الروم": 30,
+  "لقمان": 31, "السجدة": 32, "الأحزاب": 33, "سبأ": 34, "فاطر": 35,
+  "يس": 36, "الصافات": 37, "ص": 38, "الزمر": 39, "غافر": 40,
+  "فصلت": 41, "الشورى": 42, "الزخرف": 43, "الدخان": 44, "الجاثية": 45,
+  "الأحقاف": 46, "محمد": 47, "الفتح": 48, "الحجرات": 49, "ق": 50,
+  "الذاريات": 51, "الطور": 52, "النجم": 53, "القمر": 54, "الرحمن": 55,
+  "الواقعة": 56, "الحديد": 57, "المجادلة": 58, "الحشر": 59, "الممتحنة": 60,
+  "الصف": 61, "الجمعة": 62, "المنافقون": 63, "التغابن": 64, "الطلاق": 65,
+  "التحريم": 66, "الملك": 67, "القلم": 68, "الحاقة": 69, "المعارج": 70,
+  "نوح": 71, "الجن": 72, "المزمل": 73, "المدثر": 74, "القيامة": 75,
+  "الإنسان": 76, "المرسلات": 77, "النبأ": 78, "النازعات": 79, "عبس": 80,
+  "التكوير": 81, "الانفطار": 82, "المطففين": 83, "الانشقاق": 84, "البروج": 85,
+  "الطارق": 86, "الأعلى": 87, "الغاشية": 88, "الفجر": 89, "البلد": 90,
+  "الشمس": 91, "الليل": 92, "الضحى": 93, "الشرح": 94, "التين": 95,
+  "العلق": 96, "القدر": 97, "البينة": 98, "الزلزلة": 99, "العاديات": 100,
+  "القارعة": 101, "التكاثر": 102, "العصر": 103, "الهمزة": 104, "الفيل": 105,
+  "قريش": 106, "الماعون": 107, "الكوثر": 108, "الكافرون": 109, "النصر": 110,
+  "المسد": 111, "الإخلاص": 112, "الفلق": 113, "الناس": 114,
+};
+
+function buildAudioUrl(surahName: string, ayah: number): string | null {
+  const num = SURAH_NUMBER[surahName];
+  if (!num) return null;
+  const s = String(num).padStart(3, "0");
+  const a = String(ayah).padStart(3, "0");
+  return `https://everyayah.com/data/Alafasy_128kbps/${s}${a}.mp3`;
+}
+
+function PlayButton({ surahName, ayah }: { surahName: string; ayah: number }) {
+  const [status, setStatus] = useState<"idle" | "loading" | "playing">("idle");
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    return () => { audioRef.current?.pause(); };
+  }, []);
+
+  const toggle = () => {
+    const url = buildAudioUrl(surahName, ayah);
+    if (!url) return;
+
+    if (status === "playing") {
+      audioRef.current?.pause();
+      setStatus("idle");
+      return;
+    }
+
+    if (!audioRef.current) {
+      audioRef.current = new Audio(url);
+      audioRef.current.onended = () => setStatus("idle");
+      audioRef.current.onerror = () => setStatus("idle");
+    }
+
+    setStatus("loading");
+    audioRef.current.play().then(() => setStatus("playing")).catch(() => setStatus("idle"));
+  };
+
+  const url = buildAudioUrl(surahName, ayah);
+  if (!url) return null;
+
+  return (
+    <button
+      onClick={toggle}
+      title={status === "playing" ? "إيقاف التلاوة" : "استمع للآية — مشاري العفاسي"}
+      className={`
+        inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full
+        transition-all duration-200 border
+        ${status === "playing"
+          ? "bg-primary text-primary-foreground border-primary shadow-sm"
+          : "bg-background text-primary border-primary/40 hover:bg-primary/10"}
+      `}
+    >
+      {status === "loading" ? (
+        <span className="inline-block w-3.5 h-3.5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      ) : status === "playing" ? (
+        <span className="text-[10px]">⏹</span>
+      ) : (
+        <span className="text-[10px]">▶</span>
+      )}
+      {status === "playing" ? "إيقاف" : "استمع"}
+    </button>
+  );
+}
 
 export default function StoryDetailPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -107,13 +198,14 @@ export default function StoryDetailPage() {
                 key={i}
                 className="bg-card rounded-2xl card-shadow border border-border p-5 md:p-6"
               >
-                <div className="flex items-center gap-2 mb-4">
+                <div className="flex items-center gap-2 mb-4 flex-wrap">
                   <span className="text-xs font-bold bg-primary text-primary-foreground px-3 py-1 rounded-full">
                     سورة {verse.surah}
                   </span>
                   <span className="text-xs text-muted-foreground font-medium">
                     آية {verse.ayah}
                   </span>
+                  <PlayButton surahName={verse.surah} ayah={verse.ayah} />
                 </div>
                 <p
                   className="font-arabic text-xl md:text-2xl text-foreground leading-loose text-center mb-4 py-3 border-y border-border/60"

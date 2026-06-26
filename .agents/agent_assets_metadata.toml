@@ -12,3 +12,9 @@ id = "g-99orqMX5BrUT93rC5U0"
 uri = "file://attached_assets/quran-stories-changes.tar.gz"
 type = "unspecified"
 title = "التعديلات — quran-stories-changes"
+
+[[outputs]]
+id = "ibGhWBhaD5qkW9WyQs8Mk"
+uri = "file://attached_assets/quran-stories-audio.tar.gz"
+type = "unspecified"
+title = "تلاوة مشاري العفاسي — StoryDetail.tsx"
