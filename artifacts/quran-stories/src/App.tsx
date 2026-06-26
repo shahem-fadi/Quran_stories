@@ -5,6 +5,7 @@ import StoryDetailPage from "@/pages/StoryDetail";
 import AboutPage from "@/pages/About";
 import ProphetsPage from "@/pages/Prophets";
 import NotFound from "@/pages/not-found";
+import Chatbot from "@/components/Chatbot";
 
 function Router() {
   return (
@@ -23,6 +24,7 @@ function App() {
   return (
     <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
       <Router />
+      <Chatbot />
     </WouterRouter>
   );
 }
