@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "Wjw-h2Cx7E9CyANWAqNeq"
+uri = "file://attached_assets/quran-stories_modified.tar.gz"
+type = "unspecified"
+title = "quran-stories (معدّل)"
